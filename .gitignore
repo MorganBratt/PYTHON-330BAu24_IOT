@@ -1,3 +1,9 @@
+RPI_PICO_W-20241129-v1.24.1.uf2
+creds.json
+.vscode/
+picozero.py
+ssd1306.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
