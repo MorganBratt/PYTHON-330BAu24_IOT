@@ -1,5 +1,5 @@
-from machine import Pin, I2C, reset
-from ssd1306 import SSD1306_I2C
+from machine import Pin, I2C, reset # type: ignore
+from ssd1306 import SSD1306_I2C # type: ignore
 from time import sleep
 
 i2c=I2C(0,sda=Pin(0), scl=Pin(1), freq=400000)

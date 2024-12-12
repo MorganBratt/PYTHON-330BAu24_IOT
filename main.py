@@ -1,9 +1,9 @@
-import network
+import network # type: ignore
 import socket
 from time import sleep
 # copy the picozero folder to the root of the Pico
-from picozero import pico_temp_sensor, pico_led
-import machine
+from picozero import pico_temp_sensor, pico_led # type: ignore
+import machine # type: ignore
 import json
 
 
