@@ -2,7 +2,7 @@ import network  # type: ignore
 import socket
 from time import sleep
 import machine  # type: ignore
-import json
+import json  # type: ignore
 from machine import Pin, I2C, reset  # type: ignore
 from ssd1306 import SSD1306_I2C  # type: ignore
 
@@ -13,7 +13,7 @@ try:
 except FileNotFoundError:
     print("Error: creds.json file not found.")
     machine.reset()  # Reset the microcontroller
-except json.JSONDecodeError:
+except json.JSONDecodeError:  # type: ignore
     print("Error: creds.json file is not a valid JSON.")
     machine.reset()  # Reset the microcontroller
 else:
@@ -24,36 +24,60 @@ else:
     print(f"Using password {obfuscated_password}")
 
 
-def connect():
-    # Connect to WLAN
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    wlan.connect(ssid, password)
-    while wlan.isconnected() == False:
-        print("Waiting for connection...")
-        sleep(1)
-    ip = wlan.ifconfig()[0]
-    print(f"Server available at http://{ip}")
-    return ip
-
-
-def open_socket(ip):
-    # Open a socket
-    address = (ip, 80)
-    connection = socket.socket()
-    connection.bind(address)
-    connection.listen(1)
-    return connection
-
-
 def webpage():
-    # Template HTML
+    # Template HTML with CSS for styling
     html = """
             <!DOCTYPE html>
             <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        margin: 0;
+                        background-color: #f0f0f0;
+                    }
+                    form {
+                        background: #fff;
+                        padding: 20px;
+                        border-radius: 10px;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    }
+                    label {
+                        font-size: 1.2em;
+                        margin-bottom: 10px;
+                        display: block;
+                    }
+                    input[type="text"] {
+                        width: 100%;
+                        padding: 10px;
+                        margin-bottom: 20px;
+                        border: 1px solid #ccc;
+                        border-radius: 5px;
+                        font-size: 1em;
+                        box-sizing: border-box; /* Fix padding issue */
+                    }
+                    input[type="submit"] {
+                        background-color: #4CAF50;
+                        color: white;
+                        padding: 10px 20px;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 1em;
+                    }
+                    input[type="submit"]:hover {
+                        background-color: #45a049;
+                    }
+                </style>
+            </head>
+            <body>
             <form action="/submit" method="post">
-            <label for="text">Enter text (max 128 characters):</label><br>
-            <input type="text" id="text" name="text" maxlength="128" pattern="[ -~]*" required><br>
+            <label for="text">Enter text (max 96 characters):</label><br>
+            <input type="text" id="text" name="text" maxlength="96" pattern="[ -~]*" required oninput="this.size = this.value.length + 1"><br>
             <input type="submit" value="Submit">
             </form>
             </body>
@@ -64,10 +88,9 @@ def webpage():
 
 def display_wrapped_text(oled, text):
     max_chars_per_line = 16  # Maximum characters per line
-    max_lines = 8  # Maximum lines available
+    max_lines = 6  # Maximum lines available
 
     # Decode URL-encoded characters manually
-    print(text)
     decoded_text = (
         text.replace("%20", " ")
         .replace("%21", "!")
@@ -117,6 +140,39 @@ def display_wrapped_text(oled, text):
     oled.show()
 
 
+def print_snake(oled):
+    # this is clunky, writing out by each horizontal line
+    with open("snake.json", "r") as f:
+        snake_instructions = json.load(f)
+    for line in snake_instructions:
+        oled.hline(*line)  # Unpack the list into arguments
+    oled.show()
+
+
+def connect():
+    # Connect to WLAN
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(ssid, password)
+    while wlan.isconnected() == False:
+        print("Waiting for connection...")
+        display_wrapped_text(oled, "Waiting for connection...")
+        sleep(1)
+    ip = wlan.ifconfig()[0]
+    print(f"Server available at http://{ip}")
+    display_wrapped_text(oled, f"Server available at http://{ip}")
+    return ip
+
+
+def open_socket(ip):
+    # Open a socket
+    address = (ip, 80)
+    connection = socket.socket()
+    connection.bind(address)
+    connection.listen(1)
+    return connection
+
+
 def serve(connection, ip):
     # Start a web server
     display_wrapped_text(oled, f"Server running at http://{ip}")
@@ -140,6 +196,7 @@ def serve(connection, ip):
             if user_string.endswith("'"):  # Remove trailing single quote if present
                 user_string = user_string[:-1]
             display_wrapped_text(oled, user_string)
+            print_snake(oled)
 
         html = webpage()
         client.send(html)
@@ -147,10 +204,10 @@ def serve(connection, ip):
 
 
 try:
-    ip = connect()
-    connection = open_socket(ip)
     i2c = I2C(0, sda=Pin(0), scl=Pin(1), freq=400000)
     oled = SSD1306_I2C(128, 64, i2c)
+    ip = connect()
+    connection = open_socket(ip)
     serve(connection, ip)
 except KeyboardInterrupt:
     oled.fill(0)

@@ -16,7 +16,7 @@ try:
 except FileNotFoundError:
     print("Error: creds.json file not found.")
     machine.reset()  # Reset the microcontroller
-except json.JSONDecodeError:
+except json.JSONDecodeError: # type: ignore
     print("Error: creds.json file is not a valid JSON.")
     machine.reset()  # Reset the microcontroller
 else:

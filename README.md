@@ -1,20 +1,50 @@
 # PYTHON-330BAu24_IOT
-IOT project for pthon 
+IOT project for Python 330B 
 
 
-# raw notes
-https://projects.raspberrypi.org/en/projects/get-started-pico-w/0
+# Goal
+My goal was to get a new Raspberry Pi Pico 2 W and setup a simple web server that would take text input and display it on a screen.  I also wanted to see if I could use Visual Studo Code for this instead of Thonny.
 
-Download the latest version of Raspberry Pi Pico W firmware at https://rpf.io/pico-w-firmware
 
-## MicroPico
-https://github.com/paulober/MicroPico/
+# Hardware
+I purchased the following:
+- [Raspberry Pi Pico 2 W](https://www.raspberrypi.com/products/raspberry-pi-pico-2/)
+- [A 128x64 Pixel SSD1306 OLED display](https://www.amazon.com/dp/B09T6SJBV5)
+- A Large 830 Hole Breadboard
+- Set of two 20-pin Headers
+- M/M Jumper Wires
+- Soldering iron and Solder
 
-- To run your program, run `> MicroPico > Run current file` on Pico in your Python file's tab. You can also use the status bar button "Run " at the bottom of VS Code window.
 
-- To stop the execution of the currently running program, run `> MicroPico > Stop execution`. The "Stop" button at the status bar does the same.
+# Helpful guides
+Capturing the following guides I used to build the project  
+https://projects.raspberrypi.org/en/projects/get-started-pico-w/0  
+https://github.com/paulober/MicroPico/  
+https://how2electronics.com/simple-calculator-using-keypad-oled-raspberry-pi-pico/  
+https://docs.micropython.org/en/latest/esp8266/tutorial/ssd1306.html  
 
-- upload file, right click file and select `Upload file to Pico` 
+# Imported Modules
+[micropython-ssd1306](https://github.com/stlehmann/micropython-ssd1306)  
+[picozero](https://github.com/RaspberryPiFoundation/picozero)  
+
+# Wirinng
+| Pico Pin | ssd1306 Pin |
+| -------- | ----------- | 
+| GP0\SDA  | SDA |
+| GP1\SCL  | SCL | 
+| GP38\Ground  |GND |
+| GP36\3v3 Out | VCC | 
+
+# Program Flow
+1) After startup the Pico will connect to wireless and serve a basic 
+    ![](https://gist.githubusercontent.com/MorganBratt/b3ceffedc0d0f072143e70fe46ed0904/raw/55f0a68e2f6280f35351c0bd4c8c2f17965c215c/PXL_20241217_013706859.jpg)
+2) The user can connect to the device and submit a string of 96 characters to display on the screen
+    ![](https://gist.github.com/MorganBratt/b3ceffedc0d0f072143e70fe46ed0904/raw/55f0a68e2f6280f35351c0bd4c8c2f17965c215c/Screenshot%25202024-12-16%2520175822.png)
+3) The simple web server interprets the user input and displays it on the 128x64 screen with a Python image at the bottom right.
+    ![](https://gist.githubusercontent.com/MorganBratt/b3ceffedc0d0f072143e70fe46ed0904/raw/55f0a68e2f6280f35351c0bd4c8c2f17965c215c/PXL_20241217_015916918.jpg)
+
+
+
 
 
 ## Example creds.json file
@@ -25,6 +55,3 @@ https://github.com/paulober/MicroPico/
 }
 ```
 
-
-desired socket state
-`<socket state=1 timeout=-1 incoming=0 off=0>`
